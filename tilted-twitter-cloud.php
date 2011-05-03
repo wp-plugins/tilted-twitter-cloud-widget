@@ -5,7 +5,7 @@ Plugin Name: Tilted Twitter Cloud Widget
 Plugin URI: http://www.whiletrue.it/
 Description: Takes latest Twitter updates and aggregates them into a tilted tag cloud widget for sidebar.
 Author: WhileTrue
-Version: 1.0
+Version: 1.0.1
 Author URI: http://www.whiletrue.it/
 */
 
@@ -93,8 +93,10 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 					$word = substr( $word, 0, -1 );
 				}
 				
-				//AFTER TEXT CLEANING, CHECK ITS LENGHT AND EXCLUDES
-				if (strlen($word)<3 or in_array($word,$excludes)) {
+				//AFTER TEXT CLEANING, CHECK ITS LENGHT (MB_STRLEN PREFERRED IF AVAILABLE) AND EXCLUDES
+				$len = (function_exists('mb_strlen')) ? mb_strlen($word) : strlen($word);
+				
+				if ($len<3 or in_array($word,$excludes)) {
 					continue;
 				}
 				$words[$word]++;
@@ -111,13 +113,13 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 
 	$i=0;
 	foreach( $words as $word => $num ){
-		if ($num==0) {
+		if ($num==0 or $word=='0') {
 			continue;
 		}
 		if( $instance['use_links']=='on' ) {
 			$out .= '<a target="_blank" href="http://search.twitter.com/search?'.$search_username.'ands='.urlencode($word).'">';
 		}
-		$out .=  '<span id="tilted-twitter-cloud-el-'.$i.'">'.htmlentities($word).'</span>';
+		$out .=  '<span id="tilted-twitter-cloud-el-'.$i.'">'.$word.'</span>';
 		if( $instance['use_links']=='on' ) $out .= '</a>';
 
 		$deg = rand(-45,45);
@@ -131,7 +133,7 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 			position:absolute; padding-bottom:8px; z-index:1;
 			margin-top:'.rand(5,round(60*($num+1)/$num)).'px; 
 			margin-left:'.rand(0,round(60*($num+1)/$num)).'px; 
-			font-size:' . round( 1+($num-1)/ 4 ,1) . 'em;
+			font-size:' . round( (4+$num)/5 ,1) . 'em;
 			     -moz-transform: rotate('.$deg.'deg);  
 			       -o-transform: rotate('.$deg.'deg);   
 			  -webkit-transform: rotate('.$deg.'deg);  
@@ -225,7 +227,7 @@ class TiltedTwitterCloudWidget extends WP_Widget {
 			$instance['use_links'] = 'on';
 			$instance['link_only_user_tweets'] = '';
 			$instance['words_excluded'] = 'and,are,but,can,can\'t,does,don\'t,for,from,get,has,have,her,his,i\'m,not,one,say,she,that,the,their,they,this,will,won\'t,with,you,'
-				.'agli,che,chi,coi,come,con,dagli,dal,dalla,degli,del,della,fra,mio,mia,miei,non,per,tra,tua,tuo,tuoi';
+				.'agli,che,chi,coi,come,con,dagli,dal,dalla,degli,del,della,fra,lei,lui,mio,mia,miei,non,per,più,qua,qui,tra,tua,tuo,tuoi,una,uno';
 		}					
         $title = esc_attr($instance['title']);
         $twitter_username = esc_attr($instance['twitter_username']);
