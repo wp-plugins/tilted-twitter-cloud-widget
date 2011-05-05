@@ -29,12 +29,15 @@ For more informations: http://www.whiletrue.it/en/projects/wordpress/26-tilted-t
 3. Inside the `Themes->Widget` menu, place the Tilted Twitter Cloud Widget inside a sidebar, customize the settings and save
 4. Enjoy!
 
-
+== Frequently Asked Questions ==
+Coming soon
 
 == Credits ==
-
 This plugin is partly based on previous work of Stephen McIntyre's Tweet Cloud plugin.
 
+
+== Screenshots ==
+Coming soon
 
 == Changelog ==
 
