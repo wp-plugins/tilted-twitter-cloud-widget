@@ -4,7 +4,7 @@ Donate link: http://www.whiletrue.it/
 Tags: twitter, twitter sidebar, sidebar, social sidebar, widget, plugin, posts, links, twitter widget, twitter feed, simple twitter, tag, tags, cloud, tag cloud, tilted, tweet cloud, twitter cloud
 Requires at least: 2.9+
 Tested up to: 3.1
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 
 Shows a tilted tag cloud with the most used words from a Twitter account in a sidebar widget.
 
@@ -37,6 +37,9 @@ This plugin is partly based on previous work of Stephen McIntyre's Tweet Cloud p
 
 
 == Changelog ==
+
+= 1.0.2 =
+* Changed: direct to the twitter.com search link
 
 = 1.0.1 =
 * Changed: slower font size progression

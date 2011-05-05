@@ -5,7 +5,7 @@ Plugin Name: Tilted Twitter Cloud Widget
 Plugin URI: http://www.whiletrue.it/
 Description: Takes latest Twitter updates and aggregates them into a tilted tag cloud widget for sidebar.
 Author: WhileTrue
-Version: 1.0.1
+Version: 1.0.2
 Author URI: http://www.whiletrue.it/
 */
 
@@ -109,7 +109,9 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 		array_splice( $words, $instance['words_number'] );
 	}
 	
-	$search_username = ($instance['link_only_user_tweets']=='on') ? 'from='.$instance['twitter_username'].'&amp;' : '';
+	// DIRECT TO THE TWITTER.COM SEARCH USERNAME LINK
+	$search_username = ($instance['link_only_user_tweets']=='on') ? '%20from%3A'.$instance['twitter_username'] : '';
+	//$search_username = ($instance['link_only_user_tweets']=='on') ? 'from='.$instance['twitter_username'].'&amp;' : '';
 
 	$i=0;
 	foreach( $words as $word => $num ){
@@ -117,7 +119,9 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 			continue;
 		}
 		if( $instance['use_links']=='on' ) {
-			$out .= '<a target="_blank" href="http://search.twitter.com/search?'.$search_username.'ands='.urlencode($word).'">';
+			// DIRECT TO THE TWITTER.COM SEARCH LINK
+			$out .= '<a target="_blank" href="http://twitter.com/#!/search/'.urlencode($word).$search_username.'">';
+			//$out .= '<a target="_blank" href="http://search.twitter.com/search?'.$search_username.'ands='.urlencode($word).'">';
 		}
 		$out .=  '<span id="tilted-twitter-cloud-el-'.$i.'">'.$word.'</span>';
 		if( $instance['use_links']=='on' ) $out .= '</a>';
