@@ -5,7 +5,7 @@ Plugin Name: Tilted Twitter Cloud Widget
 Plugin URI: http://www.whiletrue.it/
 Description: Takes latest Twitter updates and aggregates them into a tilted tag cloud widget for sidebar.
 Author: WhileTrue
-Version: 1.0.2
+Version: 1.0.3
 Author URI: http://www.whiletrue.it/
 */
 
@@ -37,7 +37,6 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 		return 'Tilted Twitter Cloud Error: No username given';
 	}
 
-	
 	// MODIFY FEED CACHE LIFETIME ONLY FOR THIS FEED (2 hours)
 	add_filter( 'wp_feed_cache_transient_lifetime', create_function( '$a', 'return 7200;' ) );
 
@@ -96,7 +95,7 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 				//AFTER TEXT CLEANING, CHECK ITS LENGHT (MB_STRLEN PREFERRED IF AVAILABLE) AND EXCLUDES
 				$len = (function_exists('mb_strlen')) ? mb_strlen($word) : strlen($word);
 				
-				if ($len<3 or in_array($word,$excludes)) {
+				if ($len<=3 or in_array($word,$excludes)) {
 					continue;
 				}
 				$words[$word]++;
@@ -106,37 +105,37 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 	arsort($words);
 
 	if( is_numeric($instance['words_number']) and $instance['words_number'] > 0 ){
-		array_splice( $words, $instance['words_number'] );
+		array_splice( $words, ($instance['words_number']+1) );
 	}
 	
 	// DIRECT TO THE TWITTER.COM SEARCH USERNAME LINK
-	$search_username = ($instance['link_only_user_tweets']=='on') ? '%20from%3A'.$instance['twitter_username'] : '';
-	//$search_username = ($instance['link_only_user_tweets']=='on') ? 'from='.$instance['twitter_username'].'&amp;' : '';
+	$search_username = ($instance['link_only_user_tweets']) ? '%20from%3A'.$instance['twitter_username'] : '';
 
-	$i=0;
+	// VALIDATE PARAMETER VALUES
+	$instance['horizontal_spread'] = (is_numeric($instance['horizontal_spread']) and $instance['horizontal_spread']>0) ? $instance['horizontal_spread'] : 60;
+
+	$i=1;
 	foreach( $words as $word => $num ){
 		if ($num==0 or $word=='0') {
 			continue;
 		}
-		if( $instance['use_links']=='on' ) {
+		if( $instance['use_links'] ) {
 			// DIRECT TO THE TWITTER.COM SEARCH LINK
 			$out .= '<a target="_blank" href="http://twitter.com/#!/search/'.urlencode($word).$search_username.'">';
 			//$out .= '<a target="_blank" href="http://search.twitter.com/search?'.$search_username.'ands='.urlencode($word).'">';
 		}
-		$out .=  '<span id="tilted-twitter-cloud-el-'.$i.'">'.$word.'</span>';
-		if( $instance['use_links']=='on' ) $out .= '</a>';
+		$out .=  '
+			<span id="tilted-twitter-cloud-el-'.$i.'">'.$word.'</span>
+			';
+		if( $instance['use_links'] ) $out .= '</a>';
 
 		$deg = rand(-45,45);
-		/* SUPPORT FOR IE6 DROPPED
-		$rad = deg2rad($deg);
-		filter: progid:DXImageTransform.Microsoft.Matrix(M11='.cos($rad).', M12=-'.sin($rad).', M21='.sin($rad).', M22='.cos($rad).',sizingMethod=\'auto expand\');
-		*/
-		$out .=  '
-		<style>
+
+		$out_style .=  '
 		div#tilted-twitter-cloud span#tilted-twitter-cloud-el-'.$i.' {
 			position:absolute; padding-bottom:8px; z-index:1;
 			margin-top:'.rand(5,round(60*($num+1)/$num)).'px; 
-			margin-left:'.rand(0,round(60*($num+1)/$num)).'px; 
+			margin-left:'.rand(0,round($instance['horizontal_spread']*($num+1)/$num)).'px; 
 			font-size:' . round( (4+$num)/5 ,1) . 'em;
 			     -moz-transform: rotate('.$deg.'deg);  
 			       -o-transform: rotate('.$deg.'deg);   
@@ -145,7 +144,6 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 			          transform: rotate('.$deg.'deg);  
 			               zoom: 1;
 		}
-		</style>
 		';	
 		$i++;
 	}
@@ -160,6 +158,7 @@ function tilted_twitter_cloud ($instance, $remove_types=array() ) {
 		color:gray;
 		text-decoration:none;
 	}
+	'.$out_style.'
 	</style>
 	<script type="text/javascript">
 	jQuery(document).ready(function(){
@@ -199,7 +198,16 @@ add_action('init', 'tilted_twitter_cloud_init');
 class TiltedTwitterCloudWidget extends WP_Widget {
     /** constructor */
     function TiltedTwitterCloudWidget() {
-        parent::WP_Widget(false, $name = 'TiltedTwitterCloudWidget');	
+		$this->options = array(
+			array('name'=>'title', 'label'=>'Title:', 'type'=>'text'),
+			array('name'=>'twitter_username', 'label'=>'Twitter Username:', 'type'=>'text'),
+			array('name'=>'words_number', 'label'=>'Number of words to show:', 'type'=>'text'),
+			array('name'=>'use_links', 'label'=>'Link words to twitter search:', 'type'=>'checkbox'),
+			array('name'=>'link_only_user_tweets', 'label'=>'Limit links to user tweets:', 'type'=>'checkbox'),
+			array('name'=>'words_excluded', 'label'=>'Excluded words (comma separated):', 'type'=>'text'),
+			array('name'=>'horizontal_spread', 'label'=>'Horizontal spread in px (default is 60):', 'type'=>'text'),
+		);
+       parent::WP_Widget(false, $name = 'Tilted Twitter Cloud');	
     }
 
     /** @see WP_Widget::widget */
@@ -214,13 +222,16 @@ class TiltedTwitterCloudWidget extends WP_Widget {
     /** @see WP_Widget::update */
     function update($new_instance, $old_instance) {				
 	$instance = $old_instance;
-	$instance['title'] = strip_tags($new_instance['title']);
-	$instance['twitter_username'] = strip_tags($new_instance['twitter_username']);
-	$instance['words_number'] = strip_tags($new_instance['words_number']);
-	$instance['use_links'] = strip_tags($new_instance['use_links']);
-	$instance['link_only_user_tweets'] = strip_tags($new_instance['link_only_user_tweets']);
-	$instance['words_excluded'] = strip_tags($new_instance['words_excluded']);
-        return $instance;
+
+	foreach ($this->options as $val) {
+		if ($val['type']=='text') {
+			$instance[$val['name']] = strip_tags($new_instance[$val['name']]);
+		} else if ($val['type']=='checkbox') {
+			$instance[$val['name']] = ($new_instance[$val['name']]=='on') ? true : false;
+		}
+	}
+
+       return $instance;
     }
 
     /** @see WP_Widget::form */
@@ -228,43 +239,27 @@ class TiltedTwitterCloudWidget extends WP_Widget {
 		if (empty($instance)) {
 			$instance['title'] = 'Tilted Twitter Cloud';
 			$instance['words_number'] = 20;
-			$instance['use_links'] = 'on';
-			$instance['link_only_user_tweets'] = '';
-			$instance['words_excluded'] = 'and,are,but,can,can\'t,does,don\'t,for,from,get,has,have,her,his,i\'m,not,one,say,she,that,the,their,they,this,will,won\'t,with,you,'
-				.'agli,che,chi,coi,come,con,dagli,dal,dalla,degli,del,della,fra,lei,lui,mio,mia,miei,non,per,più,qua,qui,tra,tua,tuo,tuoi,una,uno';
+			$instance['use_links'] = true;
+			$instance['link_only_user_tweets'] = false;
+			$instance['words_excluded'] = 'can\'t,does,don\'t,from,have,i\'m,that,their,they,this,will,won\'t,with,'
+				.'agli,come,dagli,dalla,degli,della,miei,sugli,sulla,sulle,sullo,tuoi';
+			$instance['horizontal_spread'] = '60';
 		}					
-        $title = esc_attr($instance['title']);
-        $twitter_username = esc_attr($instance['twitter_username']);
-        $words_number = esc_attr($instance['words_number']);
-        $use_links = ($instance['use_links']=='on') ? 'checked="checked"' : '';
-        $link_only_user_tweets = ($instance['link_only_user_tweets']=='on') ? 'checked="checked"' : '';
-        $words_excluded = esc_attr($instance['words_excluded']);
-        ?>
-         <p>
-          <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label> 
-          <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
-        </p>
-         <p>
-          <label for="<?php echo $this->get_field_id('twitter_username'); ?>"><?php _e('Twitter username:'); ?></label> 
-          <input class="widefat" id="<?php echo $this->get_field_id('twitter_username'); ?>" name="<?php echo $this->get_field_name('twitter_username'); ?>" type="text" value="<?php echo $twitter_username; ?>" />
-        </p>
-         <p>
-          <label for="<?php echo $this->get_field_id('words_number'); ?>"><?php _e('Number of words to show:'); ?></label> 
-          <input class="widefat" id="<?php echo $this->get_field_id('words_number'); ?>" name="<?php echo $this->get_field_name('words_number'); ?>" type="text" value="<?php echo $words_number; ?>" />
-        </p>
-         <p>
-          <label for="<?php echo $this->get_field_id('use_links'); ?>"><?php _e('Link words to twitter search:'); ?></label> 
-          <input id="<?php echo $this->get_field_id('use_links'); ?>" name="<?php echo $this->get_field_name('use_links'); ?>" type="checkbox" <?php echo $use_links; ?> />
-        </p>
-         <p>
-          <label for="<?php echo $this->get_field_id('link_only_user_tweets'); ?>"><?php _e('Limit links to user tweets:'); ?></label> 
-          <input id="<?php echo $this->get_field_id('link_only_user_tweets'); ?>" name="<?php echo $this->get_field_name('link_only_user_tweets'); ?>" type="checkbox" <?php echo $link_only_user_tweets; ?> />
-        </p>
-         <p>
-          <label for="<?php echo $this->get_field_id('words_excluded'); ?>"><?php _e('Excluded words (comma separated):'); ?></label> 
-          <input class="widefat" id="<?php echo $this->get_field_id('words_excluded'); ?>" name="<?php echo $this->get_field_name('words_excluded'); ?>" type="text" value="<?php echo $words_excluded; ?>" />
-        </p>
-        <?php 
+
+		foreach ($this->options as $val) {
+			echo '<p>
+				      <label for="'.$this->get_field_id($val['name']).'">'.__($val['label']).'</label> 
+				   ';
+			if ($val['type']=='text') {
+				echo '<input class="widefat" id="'.$this->get_field_id($val['name']).'" name="'.$this->get_field_name($val['name']).'" type="text" value="'.esc_attr($instance[$val['name']]).'" />';
+			} else if ($val['type']=='checkbox') {
+				$checked = ($instance[$val['name']]) ? 'checked="checked"' : '';
+				echo '<input id="'.$this->get_field_id($val['name']).'" name="'.$this->get_field_name($val['name']).'" type="checkbox" '.$checked.' />';
+			}
+			echo '</p>';
+		}
+
+
     }
 
 } // class TiltedTwitterCloudWidget
