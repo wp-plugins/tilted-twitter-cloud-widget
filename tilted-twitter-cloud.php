@@ -5,7 +5,7 @@ Plugin Name: Tilted Twitter Cloud Widget
 Plugin URI: http://www.whiletrue.it/
 Description: Takes latest Twitter updates and aggregates them into a tilted tag cloud widget for sidebar.
 Author: WhileTrue
-Version: 1.0.3
+Version: 1.0.4
 Author URI: http://www.whiletrue.it/
 */
 
