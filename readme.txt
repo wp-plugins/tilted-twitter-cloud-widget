@@ -21,7 +21,7 @@ If you need a WordPress Widget showing a Tilted Tag Cloud, take a look at our **
 The plugin code is freely available as reference for future implementations.
 
 
-= OLD PLUGIN DESCRIPTION =
+= PLUGIN DESCRIPTION =
 
 "Tilted Twitter Cloud Widget" is a free plugin for Wordpress, developed by the Whiletrue.it staff to generate a tag cloud with the most used words in the last 100 tweets from a public Twitter account.
 
