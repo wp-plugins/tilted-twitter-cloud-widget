@@ -9,6 +9,20 @@ Stable tag: 1.0.3
 Shows a tilted tag cloud with the most used words from a Twitter account in a sidebar widget.
 
 == Description ==
+
+# DISCLAIMER
+
+"Tilted Twitter Cloud Widget" is a plugin based on the discontinued Twitter API version 1, so **it's no longer working**.
+
+If you need a WordPress Widget showing your (or other) latest tweets, take a look at our **[Really simple Twitter Feed](http://www.whiletrue.it/really-simple-twitter-feed-widget-for-wordpress/ "Really simple Twitter Feed")**. 
+
+If you need a WordPress Widget showing a Tilted Tag Cloud, take a look at our **[Tilted Tag Cloud Widget](http://www.whiletrue.it/tilted-tag-cloud-widget-per-wordpress/ "Tilted Tag Cloud Widget")**.
+
+The plugin code is freely available as reference for future implementations.
+
+
+## OLD PLUGIN DESCRIPTION
+
 "Tilted Twitter Cloud Widget" is a free plugin for Wordpress, developed by the Whiletrue.it staff to generate a tag cloud with the most used words in the last 100 tweets from a public Twitter account.
 
 The words inside the cloud are overlapping and tilted, creating a cluster. 
