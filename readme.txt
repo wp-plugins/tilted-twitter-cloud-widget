@@ -35,7 +35,7 @@ The following options are customizable:
 This plugin displays the latest posts from a Twitter account in a sidebar widget. 
 Easy customization of number of posts shown and replies detection.
 
-For more informations: http://www.whiletrue.it/en/projects/wordpress/26-tilted-twitter-cloud-widget-per-wordpress.html
+For more info [click here](http://www.whiletrue.it/tilted-twitter-cloud-widget-for-wordpress/ "Tilted Twitter Cloud Widget for WordPress").
 
 == Installation ==
 1. Upload the `tilted-twitter-cloud-widget` directory into the `/wp-content/plugins/` directory
